@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Dress-Up Game 🎀</title>
+  <style>
+    :root { --pink:#f5b8d0; --deep:#a94773; --cream:#fff8fb; --ink:#543847; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 20px 14px 28px;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink); text-align: center;
+      background: radial-gradient(circle at top, #fff 0, #fff4f8 52%, #fbe4ee 100%);
+    }
+    h1 { margin: 8px 0 4px; font-size: clamp(1.65rem, 6vw, 2.3rem); }
+    .subtitle { margin: 0 0 18px; color: #916779; }
+    .game { width: min(100%, 520px); margin: 0 auto; }
+    .stage {
+      position: relative; display: grid; place-items: center; overflow: hidden;
+      min-height: 320px; height: min(62vh, 560px); max-height: 560px;
+      background: rgba(255,255,255,.76); border: 2px solid #f4cddd;
+      border-radius: 26px; box-shadow: 0 12px 35px rgba(169,71,115,.12);
+    }
+    #outfit { display:block; width:100%; height:100%; object-fit:contain; padding: 10px; }
+    .counter { position:absolute; top:12px; right:12px; padding:7px 12px; border-radius:999px; background:#fff0f6; color:var(--deep); font-weight:700; }
+    .error { padding: 22px; color:#9d4269; font-weight:600; }
+    .controls { display:flex; gap:10px; margin:16px 0 12px; }
+    button { flex:1; border:0; border-radius:16px; padding:14px 10px; font-size:1rem; font-weight:700; cursor:pointer; color:white; background:var(--deep); box-shadow:0 5px 0 #813655; }
+    button:active { transform:translateY(3px); box-shadow:0 2px 0 #813655; }
+    button:disabled { opacity:.45; cursor:default; }
+    .dots { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin:14px 0; }
+    .dot { flex:0 0 auto; width:34px; height:34px; padding:0; border-radius:50%; color:var(--deep); background:white; border:1px solid #e9b7cd; box-shadow:none; }
+    .dot.active { color:white; background:var(--deep); border-color:var(--deep); }
+    .hint { font-size:.86rem; color:#916779; line-height:1.5; }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>My Dress-Up Game 🎀</h1>
+    <p class="subtitle">10 outfits, one lovely character!</p>
+    <section class="stage" aria-label="Character outfit preview">
+      <img id="outfit" src="images/outfit1.jpg" alt="Outfit 1" />
+      <div class="counter" id="counter">1 / 10</div>
+      <div class="error" id="error" hidden>Couldn't load this picture. Check that the image is in the images folder and its name matches outfit1.jpg, outfit2.jpg, etc.</div>
+    </section>
+    <div class="controls">
+      <button id="prev" type="button">← Previous</button>
+      <button id="next" type="button">Next →</button>
+    </div>
+    <div class="dots" id="dots" aria-label="Choose an outfit"></div>
+    <p class="hint">Tip: Add outfit1.jpg to outfit10.jpg inside your repository's <b>images</b> folder.</p>
+  </main>
+  <script>
+    const total = 10;
+    let current = 1;
+    const img = document.getElementById('outfit');
+    const counter = document.getElementById('counter');
+    const error = document.getElementById('error');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const dots = document.getElementById('dots');
+
+    function showOutfit(number) {
+      current = number;
+      img.hidden = false;
+      error.hidden = true;
+      img.src = `images/outfit${current}.jpg`;
+      img.alt = `Outfit ${current}`;
+      counter.textContent = `${current} / ${total}`;
+      prev.disabled = current === 1;
+      next.disabled = current === total;
+      [...dots.children].forEach((button, index) => {
+        button.classList.toggle('active', index + 1 === current);
+        button.setAttribute('aria-pressed', String(index + 1 === current));
+      });
+    }
+
+    img.addEventListener('error', () => {
+      img.hidden = true;
+      error.hidden = false;
+    });
+    img.addEventListener('load', () => { img.hidden = false; error.hidden = true; });
+    for (let i = 1; i <= total; i++) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'dot';
+      button.textContent = i;
+      button.setAttribute('aria-label', `Show outfit ${i}`);
+      button.addEventListener('click', () => showOutfit(i));
+      dots.appendChild(button);
+    }
+    prev.addEventListener('click', () => { if (current > 1) showOutfit(current - 1); });
+    next.addEventListener('click', () => { if (current < total) showOutfit(current + 1); });
+    showOutfit(1);
+  </script>
+</body>
+</html>
